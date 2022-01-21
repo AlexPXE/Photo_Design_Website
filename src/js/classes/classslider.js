@@ -1,5 +1,5 @@
 export default class EasySlider {
-    constructor({mainBlock, itemsNodeList, durationMs = 800, arrows = false}) {
+    constructor({mainBlock, itemsNodeList, durationMs = 4000, arrows = false}) {
 
         const styleArrows = `
                 position: absolute; 
@@ -69,33 +69,41 @@ export default class EasySlider {
             if (!inProgress) {
 
                 inProgress = true;                
-                let timeFraction = 0;                
-                const start = Date.now();
-                let progress = 0;
+                let timePass = 0;                
+                const startTime = Date.now();
+                let progress = 0;                
+                let currentPosition = 0;
 
                 const animation = () => {                    
-                    timeFraction = (Date.now() - start) / duration;
+                    timePass = Date.now() - startTime;
 
-                    if(timeFraction >= 1){
-                        timeFraction = 1;
+                    if(timePass >= duration) {
+                        timePass = duration;
                     }
 
-                    progress = this.current + Math.sin(n*(Math.PI/2) * timeFraction);
+                    progress = Math.sin(((Math.PI/2) * (timePass/duration))) * n;                    
+                    currentPosition = this.current + progress;
+                    track.style.transform = `translateX(-${currentPosition * scrollStep}px)`;
                     
-                    
-                    if(progress <= 0 || progress >= (this.totalItems + 1)) {                        
-                        progress = n > 0 ? 1 : this.totalItems;                                                
+                    if(currentPosition <= 0 || currentPosition >= (this.totalItems + 1)) {                        
+
+                        currentPosition = n > 0 ? 1 : this.totalItems;
+                        track.style.transform = `translateX(-${currentPosition * scrollStep}px)`;
+
+                        if(timePass  < duration) {                            
+                            this.current = currentPosition;
+                            console.log(progress);
+                            inProgress = false;
+                            return moveIt(n + ~~(-progress), duration - timePass);
+                        }
                     }
 
-                    track.style.transform = `translateX(-${progress * scrollStep}px)`;                                      
-
-                    if (timeFraction === 1) {
-                        this.current = progress;
+                    if (timePass === duration) {
+                        this.current = currentPosition;
                         console.log(this.current);
                         inProgress = false;
                         return;
                     }
-
                     
                     return requestAnimationFrame(animation);
                 };               
@@ -108,12 +116,12 @@ export default class EasySlider {
 
             e.preventDefault();
             if(e.target === rightBtn) {                
-                moveIt(1);
+                moveIt(3);
                 
             }
 
             if(e.target === leftBtn) {                
-                moveIt(-1);
+                moveIt(-3);
             }
         });
 
@@ -123,7 +131,7 @@ export default class EasySlider {
 
 
 
-const f = {
+const templ = {
 
     next() {
         console.log('next');
