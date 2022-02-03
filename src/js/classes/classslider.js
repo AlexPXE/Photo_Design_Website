@@ -1,31 +1,9 @@
 export default class EasySlider {
-    constructor({mainBlock, itemsNodeList, durationMs = 4000, arrows = false}) {
+    constructor({mainBlock, itemsNodeList, durationMs = 800, left = null, right = null, autoMs = 0}) {        
 
-        const styleArrows = `
-                position: absolute; 
-                width: 40px; 
-                height: 40px; 
-                background-color: #03f4fc; 
-                z-index: 100; 
-                border-radius: 50%; 
-                font-size: 20px;
-                font-weight: 900;
-                text-align: center; 
-                line-height: 44px;
-                top: 50%;
-                opacity: .5;`;
+        
         
         const track = document.createElement('div');               
-        const rightBtn = document.createElement('div');
-        const leftBtn = document.createElement('div');
-
-        rightBtn.textContent = '>';
-        leftBtn.textContent ='<';
-        rightBtn.style.cssText = styleArrows;
-        leftBtn.style.cssText = styleArrows;
-        rightBtn.style.left = `93.7%`;
-
-
         
         track.style.cssText = `
                 display: flex; flex-direction: row;`;
@@ -36,11 +14,8 @@ export default class EasySlider {
 
         track.append(itemsNodeList[0].cloneNode(true));
         track.prepend(itemsNodeList[itemsNodeList.length - 1].cloneNode(true));
-        
 
-
-        mainBlock.style.cssText = 'overflow: hidden; position: relative';
-        mainBlock.append(leftBtn, rightBtn);
+        mainBlock.style.cssText = 'overflow: hidden; position: relative';        
         mainBlock.append(track);        
         
         
@@ -56,77 +31,88 @@ export default class EasySlider {
         
         track.querySelectorAll('img').forEach( el => {
             el.style.width = `${scrollStep}px`;
-        });        
-        
+        });               
         
 
         track.style.transform = `translateX(-${scrollStep}px)`;
 
+        
         let inProgress = false;
+        let step = 1/durationMs;
+        let startTime;
+        let progress = 0;
+        let direction = 1;
+        let slideTo = 0;
 
-        const moveIt = (n, duration = durationMs) => {
 
-            if (!inProgress) {
+        const animation = () => {            
+            
+            progress = (Date.now() - startTime) * step;
 
-                inProgress = true;                
-                let timePass = 0;                
-                const startTime = Date.now();
-                let progress = 0;                
-                let currentPosition = 0;
+            if(progress >= 1) {
+                console.log(progress);
+                slideTo = slideTo - 1;
+                progress = 0;
 
-                const animation = () => {                    
-                    timePass = Date.now() - startTime;
+                switch(this.current + direction) {
+                    case 0:
+                        this.current = this.totalItems;
+                        break;
+                    case this.totalItems + 1:
+                        this.current = 1;                                         
+                        break;
+                    default:
+                        this.current = this.current + direction;
+                }
 
-                    if(timePass >= duration) {
-                        timePass = duration;
-                    }
+                console.log('current: ', this.current);
 
-                    progress = Math.sin(((Math.PI/2) * (timePass/duration))) * n;                    
-                    currentPosition = this.current + progress;
-                    track.style.transform = `translateX(-${currentPosition * scrollStep}px)`;
-                    
-                    if(currentPosition <= 0 || currentPosition >= (this.totalItems + 1)) {                        
+                startTime = Date.now();
+            }
 
-                        currentPosition = n > 0 ? 1 : this.totalItems;
-                        track.style.transform = `translateX(-${currentPosition * scrollStep}px)`;
+            track.style.transform = `translateX(-${(progress * direction + this.current) * scrollStep}px)`;
 
-                        if(timePass  < duration) {                            
-                            this.current = currentPosition;
-                            console.log(progress);
-                            inProgress = false;
-                            return moveIt(n + ~~(-progress), duration - timePass);
-                        }
-                    }
-
-                    if (timePass === duration) {
-                        this.current = currentPosition;
-                        console.log(this.current);
-                        inProgress = false;
-                        return;
-                    }
-                    
-                    return requestAnimationFrame(animation);
-                };               
-
+            if(slideTo != 0) {
                 return requestAnimationFrame(animation);
             }
+
+            console.log('stop');
+            inProgress = false;
+
+        };  
+
+        const moveIt = (n) => {           
+
+            if(n != 0 && !inProgress) {
+                console.log('start');
+                inProgress = true;
+                direction = n < 0 ? -1 : 1;
+                slideTo = Math.abs(n);
+                progress = 0;
+                startTime = Date.now();                
+                requestAnimationFrame(animation);            
+            }            
         };
 
         mainBlock.addEventListener('click', e => {
 
             e.preventDefault();
-            if(e.target === rightBtn) {                
-                moveIt(3);
-                
+            if(e.target === right) {                
+                moveIt(1);                
             }
 
-            if(e.target === leftBtn) {                
-                moveIt(-3);
+            if(e.target === left) {    
+                console.log('back');            
+                moveIt(-1);
             }
         });
 
-    } 
-    
+        if(autoMs !=0){
+            setInterval(() => {
+                moveIt(1);
+            }, durationMs + autoMs);
+        }
+    }     
 }
 
 
@@ -159,6 +145,3 @@ const templ = {
     nextBtn:'HTMLelement'
 
 };
-
-
-
