@@ -1,106 +1,110 @@
-export default class InputTooltip {
-    constructor({
-        insertBlock,
-        input,
-        tooltipStyle = '',
-        fadeinAnimation = '',
-        fadeoutAnimation = ''
-    }) {
+import { DefaultDisplayer, CustomDisplayer } from "./displayer";
 
-        const tooltip = document.createElement('div');
-        const backgroundColor = '#6ffc03';
-
-        if (tooltipStyle === '') {            
-
-            tooltip.style.cssText = `
-                    display: none; 
-                    background-color: ${backgroundColor};
-                    padding: 5px;
-                    position: absolute; 
-                    opacity: 0;`;
-                    
-
-            const arrow = document.createElement('div');
-
-            setTimeout(() => {
-                arrow.style.cssText = `
-                    position: absolute;
-                    top: -20px; 
-                    left: 10%;                       
-                    border: 10px solid transparent;
-                    border-bottom: 10px solid ${backgroundColor}`;
-
-                tooltip.append(arrow);
-            });
-        } else {
-            tooltip.classList.add(tooltipStyle);
-        }
-
-
-        if(fadeoutAnimation === '' || fadeinAnimation === '') {
-            console.warn('InputTooltip: Animation parameters were not passed to the class constructor. Animation is set by default.');
-            
-            this._timeoutID = 0;
-            this.transitionTime = 1700;
-
-            this.show = InputTooltip.defaultShow;
-            this.hide = InputTooltip.defaultHide;
-
-            tooltip.style.transition = `opacity ${this.transitionTime/1000}s`;
-        } else {            
-            this.fadeinAnimation = fadeinAnimation;
-            this.fadeoutAnimation = fadeoutAnimation;  
-
-            this.show = InputTooltip.customShow;
-            this.hide = InputTooltip.customHide;
-        }
-
-        insertBlock.append(tooltip);
-
-        this.input = input;
-        this.tooltip = tooltip;        
-    }
-
+const tooltipMixin = {
     calcPosition() {
-        const height = parseFloat(window.getComputedStyle(this.input).height);
+        const height = parseFloat( window.getComputedStyle(this.input).height);
         return `${this.input.offsetTop + height}px`;
-    }
-    
+    },
 
     setMessageText(text) {        
-        this.tooltip.textContent = text;
+        this.element.textContent = text;
         return this;
+    }
+};
+
+class DefaultTooltip extends DefaultDisplayer {
+    constructor({ input, tooltip: element, timeMs = 1000 }) {                
+        super({ element: element, timeMs: timeMs });
+
+        this.input = input;
     }    
 
-    static defaultShow() {
-        this.tooltip.style.top = this.calcPosition();
+    show() {
+        this.element.style.top = this.calcPosition();
+        super.show();
+    }
+}
 
-        this.tooltip.style.display = 'block';
-         setTimeout(() => {
-            this.tooltip.style.opacity = 1;
+Object.assign(DefaultTooltip.prototype, tooltipMixin);
+
+class CustomTooltip extends CustomDisplayer {
+    constructor({
+        input,
+        tooltip: element, 
+        fadeinAnimation = '',
+        fadeoutAnimation = '',        
+    }) {
+        super({element, fadeinAnimation, fadeoutAnimation});
+
+        this.input = input;
+    }
+
+    show() {
+        this.element.style.top = this.calcPosition();
+        super.show();
+    }
+}
+
+Object.assign(CustomTooltip.prototype, tooltipMixin);
+
+function tooltipFabric({
+    insertBlock,
+    input,        
+    tooltipStyle = '',
+    fadeinAnimation = '',
+    fadeoutAnimation = '',
+    backgroundColor = '#6ffc03',
+    toutMs = 1000
+}) {
+    const tooltip = document.createElement('div');
+
+    if (tooltipStyle === '') {            
+
+        const cssText = `
+                display: none; 
+                background-color: ${backgroundColor};
+                padding: 5px;
+                position: absolute; 
+                opacity: 0;`;
+
+        tooltip.style.cssText += cssText; 
+
+        const arrow = document.createElement('div');
+
+        //I don`t know why, but this component is not inserted in the usual way :(
+        setTimeout(() => {
+            arrow.style.cssText = `
+                position: absolute;
+                top: -20px; 
+                left: 10%;                       
+                border: 10px solid transparent;
+                border-bottom: 10px solid ${backgroundColor}`;
+
+            tooltip.append(arrow);
+        });
+    } else {
+        tooltip.classList.add(tooltipStyle);
+    }
+
+    insertBlock.append(tooltip);
+
+    if(fadeinAnimation === '' || fadeoutAnimation === '') {
+        
+        return new DefaultTooltip({
+            input, 
+            tooltip, 
+            toutMs
+        });
+
+    } else {
+
+        return new CustomTooltip({
+            input,
+            tooltip,                  
+            fadeinAnimation,
+            fadeoutAnimation,            
         });
     }
-
-    static defaultHide() {
-        this.tooltip.style.opacity = 0;
-
-        setTimeout(() => {
-            console.log(this.transitionTime);
-            this.tooltip.style.display = 'none';
-        }, this.transitionTime);      
-
-    }
-
-    static customShow() {
-        this.tooltip.style.top = this.calcPosition();
-
-        this.tooltip.classList.add(this.fadeinAnimation);
-        this.tooltip.classList.remove(this.fadeoutAnimation);
-    }
-
-    static customHide() {
-        this.tooltip.classList.add(this.fadeoutAnimation);
-        this.tooltip.classList.remove(this.fadeinAnimation);
-    }
-    
 }
+
+export default tooltipFabric;

@@ -1,5 +1,5 @@
 import slider from './modules/mainslider';
-import InputTooltip from './classes/inputtooltipclass';
+import tooltipFabric from './classes/inputtooltipclass';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,26 +9,24 @@ document.addEventListener('DOMContentLoaded', () => {
         delay: 4000
     });
 
-
-
     const modal = document.querySelector('.popup-design');
     modal.style.display = 'flex';    
     const form = modal.querySelector('form');
     const input = modal.querySelector('[name="name"]');   
     
 
-    const tt = new InputTooltip({
+    const tt = tooltipFabric({
         insertBlock: form, 
         input: input
     });
 
-    tt.setMessageText('Я тультипе!');
+    console.log(tt.hasOwnProperty('show'));
+
+    tt.setMessageText('Я тультипе!');    
     tt.show();
 
     setTimeout(() => {
         tt.hide();
     }, 9000);
-
-    console.dir(InputTooltip);
 
 });
