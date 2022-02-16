@@ -13,9 +13,8 @@ const tooltipMixin = {
 };
 
 class DefaultTooltip extends DefaultDisplayer {
-    constructor({ input, tooltip: element, timeMs = 1000 }) {                
-        super({ element: element, timeMs: timeMs });
-
+    constructor({ input, tooltip: element, toutMs = 1000 }) {                
+        super({ element: element, toutMs });
         this.input = input;
     }    
 
@@ -29,10 +28,10 @@ Object.assign(DefaultTooltip.prototype, tooltipMixin);
 
 class CustomTooltip extends CustomDisplayer {
     constructor({
-        input,
-        tooltip: element, 
-        fadeinAnimation = '',
-        fadeoutAnimation = '',        
+        input,                  //element for which tooltip
+        tooltip: element,       //tooltip block
+        fadeinAnimation = '',   //CSS ClassName
+        fadeoutAnimation = '',  //CSS ClassName
     }) {
         super({element, fadeinAnimation, fadeoutAnimation});
 
@@ -62,14 +61,16 @@ function tooltipFabric({
 
         const cssText = `
                 display: none; 
-                background-color: ${backgroundColor};
+                max-width: 150px;
+                font-size: 12px;
+                background-color: ${backgroundColor};                
                 padding: 5px;
                 position: absolute; 
                 opacity: 0;`;
 
         tooltip.style.cssText += cssText; 
 
-        const arrow = document.createElement('div');
+        const arrow = document.createElement('div'); //arrow for tooltip block
 
         //I don`t know why, but this component is not inserted in the usual way :(
         setTimeout(() => {
@@ -86,6 +87,7 @@ function tooltipFabric({
         tooltip.classList.add(tooltipStyle);
     }
 
+    console.log(insertBlock);
     insertBlock.append(tooltip);
 
     if(fadeinAnimation === '' || fadeoutAnimation === '') {
@@ -97,7 +99,6 @@ function tooltipFabric({
         });
 
     } else {
-
         return new CustomTooltip({
             input,
             tooltip,                  

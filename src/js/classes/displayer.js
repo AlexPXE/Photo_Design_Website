@@ -1,7 +1,6 @@
 class AbstaractDisplayer {
-    constructor(element) {
-        const proto = Object.getPrototypeOf(this);
-        if(proto.constructor === AbstaractDisplayer) {
+    constructor(element) {        
+        if(this.constructor === AbstaractDisplayer) {
             throw new Error('Abstract class shoud not be instanciated');
         }
 
@@ -19,8 +18,9 @@ class AbstaractDisplayer {
 
 class DefaultDisplayer extends AbstaractDisplayer {
     constructor({element, toutMs = 1000}) {
-        super(element);
 
+        console.log(toutMs);
+        super(element);        
         element.style.transition = `opacity ${toutMs/1000}s`;
         this.toutMs = toutMs;
         this._toutID = 0;
@@ -29,13 +29,14 @@ class DefaultDisplayer extends AbstaractDisplayer {
     show() {
         if(this._toutID) {
             clearInterval(this._toutID);
+            this._toutID = 0;
         }
 
         this.element.style.display = 'block';
 
         setTimeout(() => {
             this.element.style.opacity = 1;
-        });
+        }, 100);
     }
 
     hide() {
@@ -72,3 +73,5 @@ class CustomDisplayer extends AbstaractDisplayer {
 }
 
 export {DefaultDisplayer, CustomDisplayer};
+
+

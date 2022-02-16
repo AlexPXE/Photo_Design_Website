@@ -16,26 +16,20 @@ export default class EasySlider {
         track.prepend(itemsNodeList[itemsNodeList.length - 1].cloneNode(true));
 
         mainBlock.style.cssText = 'overflow: hidden; position: relative';        
-        mainBlock.append(track);        
-        
+        mainBlock.append(track);
         
         this.mainBlock = mainBlock;
         this.totalItems = itemsNodeList.length;        
         this.sliderTrack = track;
         this.current = 1;
-        
-        
-
 
         let scrollStep = parseInt(window.getComputedStyle(mainBlock).width);
         
         track.querySelectorAll('img').forEach( el => {
             el.style.width = `${scrollStep}px`;
-        });               
-        
+        });
 
         track.style.transform = `translateX(-${scrollStep}px)`;
-
         
         let inProgress = false;
         let step = 1/durationMs;
@@ -43,7 +37,6 @@ export default class EasySlider {
         let progress = 0;
         let direction = 1;
         let slideTo = 0;
-
 
         const animation = () => {            
             
@@ -78,7 +71,6 @@ export default class EasySlider {
 
             console.log('stop');
             inProgress = false;
-
         };  
 
         const moveIt = (n) => {           
@@ -107,7 +99,7 @@ export default class EasySlider {
             }
         });
 
-        if(autoMs !=0){
+        if(autoMs !=0) {
             setInterval(() => {
                 moveIt(1);
             }, durationMs + autoMs);
@@ -115,7 +107,7 @@ export default class EasySlider {
     }     
 }
 
-
+/*
 
 const templ = {
 
@@ -145,3 +137,5 @@ const templ = {
     nextBtn:'HTMLelement'
 
 };
+
+*/

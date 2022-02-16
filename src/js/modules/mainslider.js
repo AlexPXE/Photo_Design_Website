@@ -1,7 +1,7 @@
 import EasySlider from "../classes/classslider";
 
 
-export default function({blockSelector, itemsSelector, delay}) {
+export default function({blockSelector, itemsSelector, delay = 1000}) {
 
     const styleArrows = `
                 position: absolute; 
