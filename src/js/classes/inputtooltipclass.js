@@ -7,15 +7,20 @@ const tooltipMixin = {
     },
 
     setMessageText(text) {        
-        this.element.textContent = text;
+        this._textContent.textContent = text;
         return this;
     }
 };
 
 class DefaultTooltip extends DefaultDisplayer {
-    constructor({ input, tooltip: element, toutMs = 1000 }) {                
+    constructor({ input, tooltip: element, toutMs = 1000 }) {        
+
+        const textContent = document.createElement('span');
+        element.append(textContent);
+
         super({ element: element, toutMs });
         this.input = input;
+        this._textContent = textContent;        
     }    
 
     show() {
@@ -33,9 +38,14 @@ class CustomTooltip extends CustomDisplayer {
         fadeinAnimation = '',   //CSS ClassName
         fadeoutAnimation = '',  //CSS ClassName
     }) {
+
+        const textContent = document.createElement('span');
+        element.append(textContent);
+
         super({element, fadeinAnimation, fadeoutAnimation});
 
         this.input = input;
+        this._textContent = textContent;
     }
 
     show() {
@@ -62,7 +72,8 @@ function tooltipFabric({
         const cssText = `
                 display: none; 
                 max-width: 150px;
-                font-size: 12px;
+                box-shadow: 10px 5px 5px rgba(79, 79, 79, 0.78);
+                font-size: 14px;
                 background-color: ${backgroundColor};                
                 padding: 5px;
                 position: absolute; 
@@ -73,7 +84,7 @@ function tooltipFabric({
         const arrow = document.createElement('div'); //arrow for tooltip block
 
         //I don`t know why, but this component is not inserted in the usual way :(
-        setTimeout(() => {
+       // setTimeout(() => {
             arrow.style.cssText = `
                 position: absolute;
                 top: -20px; 
@@ -82,7 +93,7 @@ function tooltipFabric({
                 border-bottom: 10px solid ${backgroundColor}`;
 
             tooltip.append(arrow);
-        });
+      //  });
     } else {
         tooltip.classList.add(tooltipStyle);
     }

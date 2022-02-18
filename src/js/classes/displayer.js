@@ -37,6 +37,8 @@ class DefaultDisplayer extends AbstaractDisplayer {
         setTimeout(() => {
             this.element.style.opacity = 1;
         }, 100);
+
+        return this;
     }
 
     hide() {
@@ -46,6 +48,8 @@ class DefaultDisplayer extends AbstaractDisplayer {
             this.element.style.display = 'none';
             this._toutID = 0;
         }, this.toutMs);
+
+        return this;
     }
 }
 

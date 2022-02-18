@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
         form: document.forms[3],
         submitBtn: document.forms[3].querySelector('.button.button-order')
     });
+
+       
     
 
     /*const tt = tooltipFabric({
